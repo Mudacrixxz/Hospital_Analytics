@@ -6,7 +6,7 @@ USE hospital_db;
 SELECT
     YEAR(START) AS encounter_year,
     COUNT(*) AS total_encounters
-FROM encounters
+FROM clean_encounters
 GROUP BY YEAR(START)
 ORDER BY encounter_year;
 
@@ -14,24 +14,21 @@ ORDER BY encounter_year;
 -- (ambulatory, outpatient, wellness, urgent care, emergency, and inpatient)?
 SELECT
     YEAR(START) AS encounter_year,
-    ENCOUNTERCLASS,
+    encounter_class,
     COUNT(*) AS encounter_count,
     ROUND(
         COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY YEAR(START)),
         2
     ) AS percentage_of_year
-FROM encounters
-GROUP BY YEAR(START), ENCOUNTERCLASS
+FROM clean_encounters
+GROUP BY YEAR(START), encounter_class
 ORDER BY encounter_year, percentage_of_year DESC;
 
 -- c. What percentage of encounters were over 24 hours versus under 24 hours?
 SELECT
-    CASE
-        WHEN TIMESTAMPDIFF(HOUR, START, STOP) > 24 THEN 'Over 24 hours'
-        ELSE 'Under 24 hours'
-    END AS duration_group,
+    duration_group,
     COUNT(*) AS encounter_count,
     ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (), 2) AS percentage
-FROM encounters
+FROM clean_encounters
 GROUP BY duration_group
 ORDER BY encounter_count DESC;

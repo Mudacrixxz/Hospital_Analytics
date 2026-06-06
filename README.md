@@ -37,6 +37,10 @@ The combined analysis file is:
 
 - `hospital_analytics_questions.sql`
 
+The data cleaning file is:
+
+- `data_cleaning_all_tables.sql`: creates cleaned analysis views for patients, payers, encounters, and procedures while keeping the original tables unchanged
+
 The original full database script is:
 
 - `create_hospital_db.sql`

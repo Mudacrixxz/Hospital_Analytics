@@ -6,8 +6,8 @@ USE hospital_db;
 SELECT
     YEAR(START) AS encounter_year,
     QUARTER(START) AS encounter_quarter,
-    COUNT(DISTINCT PATIENT) AS unique_patients
-FROM encounters
+    COUNT(DISTINCT patient_id) AS unique_patients
+FROM clean_encounters
 GROUP BY YEAR(START), QUARTER(START)
 ORDER BY encounter_year, encounter_quarter;
 
@@ -15,13 +15,13 @@ ORDER BY encounter_year, encounter_quarter;
 WITH patient_encounters AS (
     SELECT
         Id,
-        PATIENT,
+        patient_id,
         START,
-        LAG(STOP) OVER (PARTITION BY PATIENT ORDER BY START) AS previous_stop
-    FROM encounters
+        LAG(STOP) OVER (PARTITION BY patient_id ORDER BY START) AS previous_stop
+    FROM clean_encounters
 )
 SELECT
-    COUNT(DISTINCT PATIENT) AS readmitted_patients
+    COUNT(DISTINCT patient_id) AS readmitted_patients
 FROM patient_encounters
 WHERE previous_stop IS NOT NULL
   AND TIMESTAMPDIFF(DAY, previous_stop, START) BETWEEN 0 AND 30;
@@ -30,27 +30,27 @@ WHERE previous_stop IS NOT NULL
 WITH patient_encounters AS (
     SELECT
         Id,
-        PATIENT,
+        patient_id,
         START,
-        LAG(STOP) OVER (PARTITION BY PATIENT ORDER BY START) AS previous_stop
-    FROM encounters
+        LAG(STOP) OVER (PARTITION BY patient_id ORDER BY START) AS previous_stop
+    FROM clean_encounters
 ),
 readmissions AS (
     SELECT
-        PATIENT,
+        patient_id,
         COUNT(*) AS readmission_count
     FROM patient_encounters
     WHERE previous_stop IS NOT NULL
       AND TIMESTAMPDIFF(DAY, previous_stop, START) BETWEEN 0 AND 30
-    GROUP BY PATIENT
+    GROUP BY patient_id
 )
 SELECT
     p.Id AS patient_id,
-    p.FIRST,
-    p.LAST,
+    p.first_name,
+    p.last_name,
     r.readmission_count
 FROM readmissions r
-JOIN patients p
-    ON r.PATIENT = p.Id
-ORDER BY r.readmission_count DESC, p.LAST, p.FIRST
+JOIN clean_patients p
+    ON r.patient_id = p.Id
+ORDER BY r.readmission_count DESC, p.last_name, p.first_name
 LIMIT 10;
