@@ -3,7 +3,7 @@
 -- a. How many total encounters occurred each year?
 
 -- b. For each year, what percentage of all encounters belonged to each encounter class
--- (ambulatory, outpatient, wellness, urgent care, emergency, and inpatient)?
+-- (ambulatory, outpatient, wellness, urgent care, emergency, and inpatient)? 
 
 -- c. What percentage of encounters were over 24 hours versus under 24 hours?
 
